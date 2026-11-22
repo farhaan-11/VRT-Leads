@@ -9,6 +9,7 @@ import {
   getSources,
 } from "@/lib/queries/enquiryQueries";
 import { findNextSalesPerson } from "@/lib/queries/assignmentQueries";
+import { getNotesForLeads } from "@/lib/queries/leadQueries";
 import StatCards from "@/app/components/StatCards";
 import Funnel from "@/app/components/Funnel";
 import EnquiryFilters from "@/app/components/EnquiryFilters";
@@ -29,6 +30,22 @@ async function loadPage(user, filters) {
   const nextOwner = await findNextSalesPerson();
 
   return { counts, revenue, enquiries, sources, viewers, nextOwner };
+}
+
+// Every note for the rows on screen, in one more query. With them already
+// here, opening a lead costs no trip to the server at all - which is the
+// whole reason the modal feels instant.
+async function loadNotes(enquiries) {
+  const ids = enquiries.map((enquiry) => enquiry.id);
+  const notes = await getNotesForLeads(ids);
+  const byLead = new Map();
+
+  for (const note of notes) {
+    const forThisLead = byLead.get(note.enquiry_id) || [];
+    forThisLead.push(note);
+    byLead.set(note.enquiry_id, forThisLead);
+  }
+  return byLead;
 }
 
 // A rule people can see is a rule they trust. This line sits here and not on
@@ -52,6 +69,7 @@ export default async function HomePage({ searchParams }) {
   const user = await getCurrentUser();
   const filters = readFilters(await searchParams);
   const data = await loadPage(user, filters);
+  const notesByLead = await loadNotes(data.enquiries);
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 p-6">
@@ -64,7 +82,7 @@ export default async function HomePage({ searchParams }) {
         sources={data.sources}
         filters={filters}
       />
-      <EnquiryTable enquiries={data.enquiries} />
+      <EnquiryTable enquiries={data.enquiries} notesByLead={notesByLead} />
     </main>
   );
 }

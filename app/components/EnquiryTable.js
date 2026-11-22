@@ -1,5 +1,10 @@
 import Link from "next/link";
 import { formatDay, daysSince, todayInNewYork } from "@/lib/dates";
+import {
+  StageBadge,
+  LeadName,
+  LeadUpdateButton,
+} from "@/app/components/lead/RowActions";
 
 const HEADINGS = [
   "Name",
@@ -9,14 +14,8 @@ const HEADINGS = [
   "Stage",
   "Follow-up",
   "Age",
+  "",
 ];
-
-const STAGE_LABELS = {
-  new: "New",
-  follow_up: "Follow-up",
-  enrolled: "Enrolled",
-  rejected: "Rejected",
-};
 
 // A dash, never the word "null". An empty column is normal here: nobody owns
 // a fresh enquiry, and only a follow-up carries a date.
@@ -47,19 +46,27 @@ function FollowUpCell({ followUpOn, today }) {
   );
 }
 
-function EnquiryRow({ enquiry, today }) {
+// The name opens the history and the last cell opens the update box. Both
+// open in the browser from what this row already holds, so neither waits on
+// the server.
+function EnquiryRow({ enquiry, today, notes }) {
   return (
     <tr className="border-t border-slate-100">
-      <td className="px-3 py-2 font-medium">
-        {enquiry.first_name} {enquiry.last_name}
+      <td className="px-3 py-2">
+        <LeadName lead={enquiry} notes={notes} />
       </td>
       <td className="max-w-56 truncate px-3 py-2">{orDash(enquiry.company)}</td>
       <td className="px-3 py-2">{orDash(enquiry.source)}</td>
       <td className="px-3 py-2">{orDash(enquiry.owner_name)}</td>
-      <td className="px-3 py-2">{STAGE_LABELS[enquiry.stage]}</td>
+      <td className="px-3 py-2">
+        <StageBadge stage={enquiry.stage} />
+      </td>
       <FollowUpCell followUpOn={enquiry.follow_up_on} today={today} />
       <td className="px-3 py-2 text-right text-slate-500">
         {daysSince(enquiry.created_at)}d
+      </td>
+      <td className="px-3 py-2 text-right">
+        <LeadUpdateButton lead={enquiry} today={today} />
       </td>
     </tr>
   );
@@ -92,7 +99,7 @@ function NothingFound() {
   );
 }
 
-export default function EnquiryTable({ enquiries }) {
+export default function EnquiryTable({ enquiries, notesByLead }) {
   if (enquiries.length === 0) {
     return <NothingFound />;
   }
@@ -105,7 +112,12 @@ export default function EnquiryTable({ enquiries }) {
         <TableHead />
         <tbody>
           {enquiries.map((enquiry) => (
-            <EnquiryRow key={enquiry.id} enquiry={enquiry} today={today} />
+            <EnquiryRow
+              key={enquiry.id}
+              enquiry={enquiry}
+              today={today}
+              notes={notesByLead.get(enquiry.id) || []}
+            />
           ))}
         </tbody>
       </table>

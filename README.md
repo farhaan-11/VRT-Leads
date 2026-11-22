@@ -125,6 +125,40 @@ Three of the numbers are links. Clicking "Overdue 5" lands on exactly those
 five rows. Every filter lives in the URL, so any view can be copied and sent
 to someone else.
 
+## Working a lead
+
+Everything happens from the row itself, and nothing waits on the server.
+
+**The Update button** at the end of every open row opens one small box. It
+asks one question first - what happened on this call? - as three choices:
+
+| Choice | What it asks for |
+| ------------- | ------------------------------------------- |
+| Follow-up | What was said, and the next follow-up date |
+| Enrolled | Cohort, start date, amount, and a note if you want one |
+| Rejected | Why they said no |
+
+Follow-up is already chosen, because that is what happens after most calls.
+Picking another one swaps the fields underneath. One Save button, and the box
+closes itself once the write lands.
+
+All three write a note, so the history carries the whole story including the
+last word. A follow-up date can never be in the past. A rejection needs a
+reason: left optional it would be left blank, and the column would be worth
+nothing when VRT asks why leads are lost.
+
+**The name** opens the history: every note so far, oldest first, with who
+wrote it and when, and the next follow-up date above them. Nothing from the
+row is repeated there.
+
+A name is only clickable once the lead has at least one note. A lead nobody
+has spoken to has no history to show. A closed lead keeps its history but
+loses its Update button - nothing is left to do on it, and a second
+enrollment would count the same money twice. Closing a lead also clears its
+follow-up date, so it stops showing up in the overdue count.
+
+Escape, the x, or a click outside closes either box.
+
 ## The enquiry form
 
 `/enquiries/new` is a public form. A visitor fills it, and a sales person
