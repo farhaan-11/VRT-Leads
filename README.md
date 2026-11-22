@@ -186,6 +186,9 @@ npm run build
 
 ## What is in the demo data
 
+These are the numbers the seed loads. Enquiries sent through the form or the
+API are added to them, so the totals on screen read higher than this table.
+
 | Number             | Value                     |
 | ------------------ | ------------------------- |
 | Total enquiries    | 50                        |
