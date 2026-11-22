@@ -1,7 +1,7 @@
 import { daysSince } from "@/lib/dates";
 import { money, shortDay, sourceLabel } from "@/app/components/format";
 import { Avatar, StageBadge } from "@/app/components/ui";
-import { LeadName, LeadUpdateButton } from "@/app/components/lead/RowActions";
+import { LeadName, RowAction } from "@/app/components/lead/RowActions";
 
 const CELL = "px-4 align-middle";
 
@@ -79,7 +79,9 @@ function NextStepCell({ lead, today }) {
   );
 }
 
-export default function LeadRow({ lead, today, notes }) {
+export default function LeadRow({ lead, today, notes, owners, isAdmin }) {
+  const late = isLate(lead, today);
+
   return (
     <tr className="h-[52px] border-t border-[#F2F4F7] transition hover:bg-[#FAFAFB]">
       <td className={CELL}>
@@ -96,7 +98,14 @@ export default function LeadRow({ lead, today, notes }) {
         {daysSince(lead.created_at)} days
       </td>
       <td className={`${CELL} text-right`}>
-        <LeadUpdateButton lead={lead} today={today} />
+        <RowAction
+          lead={lead}
+          notes={notes}
+          owners={owners}
+          isAdmin={isAdmin}
+          today={today}
+          late={late}
+        />
       </td>
     </tr>
   );

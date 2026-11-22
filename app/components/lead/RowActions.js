@@ -1,96 +1,89 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/app/components/ui";
+import LeadModal from "@/app/components/lead/LeadModal";
 import LeadActionModal from "@/app/components/lead/LeadActionModal";
 import LeadHistoryModal from "@/app/components/lead/LeadHistoryModal";
+import AssignModal from "@/app/components/lead/AssignModal";
 
-const STAGE_LABELS = {
-  new: "New",
-  follow_up: "Follow-up",
-  enrolled: "Enrolled",
-  rejected: "Rejected",
+const TITLES = {
+  assign: "give this lead an owner",
+  update: "what happened on the call",
+  history: "everything so far",
 };
 
-const BADGE_STYLES = {
-  new: "bg-slate-100 text-slate-700",
-  follow_up: "bg-amber-100 text-amber-800",
-  enrolled: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
-};
-
-// The table shows this in its stage column too, so the word and the colour
-// are written once and cannot drift apart.
-export function StageBadge({ stage }) {
-  return (
-    <span
-      className={`rounded-full px-2 py-0.5 text-xs font-medium ${BADGE_STYLES[stage]}`}
-    >
-      {STAGE_LABELS[stage]}
-    </span>
-  );
+// A lead still being worked on. Which words the button carries depends on
+// how late it is, because "Log call" and "Follow up now" ask for the same
+// thing but only one of them says it is already overdue.
+function openAction(lead, late) {
+  if (lead.stage === "new") {
+    return { label: "Log first call", look: "primary", kind: "update" };
+  }
+  if (late) {
+    return { label: "Follow up now", look: "danger", kind: "update" };
+  }
+  return { label: "Log call", look: "quiet", kind: "update" };
 }
 
-function useEscapeKey(onClose) {
-  useEffect(() => {
-    function onKeyDown(event) {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
+// One button per row. A row offering three choices makes the reader stop and
+// pick; a row with one obvious next move gets done.
+//
+// An unowned lead comes first whatever its stage, because nobody can make a
+// call on a lead that has no owner yet.
+function actionFor(lead, isAdmin, late) {
+  if (!lead.owner_name && isAdmin) {
+    return { label: "Assign", look: "primary", kind: "assign" };
+  }
+  if (!lead.owner_name) {
+    return { label: "Waiting", look: "ghost", kind: "" };
+  }
+  if (lead.stage === "new" || lead.stage === "follow_up") {
+    return openAction(lead, late);
+  }
+  return { label: "View", look: "ghost", kind: "history" };
 }
 
-// The name, the stage and the email. Everything else about this lead is in
-// the row behind the modal, and saying it twice only makes the box longer.
-function ModalHeader({ lead, onClose }) {
-  return (
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="font-semibold">
-            {lead.first_name} {lead.last_name}
-          </p>
-          <StageBadge stage={lead.stage} />
-        </div>
-        <p className="mt-1 text-xs text-slate-500">{lead.email}</p>
-      </div>
-
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Close"
-        className="px-2 text-xl leading-none text-slate-400 hover:text-slate-700"
-      >
-        ×
-      </button>
-    </div>
-  );
+// One box, three insides. Which one opens is decided by the button that was
+// clicked, so the reader always lands on the thing they asked for.
+function Body({ kind, lead, notes, owners, today, onClose }) {
+  if (kind === "assign") {
+    return <AssignModal lead={lead} owners={owners} onClose={onClose} />;
+  }
+  if (kind === "update") {
+    return <LeadActionModal lead={lead} today={today} onClose={onClose} />;
+  }
+  return <LeadHistoryModal lead={lead} notes={notes} />;
 }
 
-// Escape, the × and a click anywhere outside all close it. One piece of
-// state holds it open, so opening costs no trip to the server and a second
-// click has nothing left to do.
-function ModalShell({ lead, onClose, children }) {
-  useEscapeKey(onClose);
+export function RowAction({ lead, notes, owners, isAdmin, today, late }) {
+  const [kind, setKind] = useState("");
+  const close = useCallback(() => setKind(""), []);
+  const action = actionFor(lead, isAdmin, late);
+
+  if (!action.kind) {
+    return <span className="text-[13px] text-[#98A2B3]">{action.label}</span>;
+  }
 
   return (
-    <div className="fixed inset-0 z-30 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4 sm:items-center">
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="fixed inset-0 cursor-default"
-      />
+    <>
+      <Button look={action.look} onClick={() => setKind(action.kind)}>
+        {action.label}
+      </Button>
 
-      <div className="relative w-full max-w-lg rounded-lg bg-white p-5 text-slate-900 shadow-xl">
-        <ModalHeader lead={lead} onClose={onClose} />
-        <div className="mt-4">{children}</div>
-      </div>
-    </div>
+      {kind ? (
+        <LeadModal lead={lead} title={TITLES[kind]} onClose={close}>
+          <Body
+            kind={kind}
+            lead={lead}
+            notes={notes}
+            owners={owners}
+            today={today}
+            onClose={close}
+          />
+        </LeadModal>
+      ) : null}
+    </>
   );
 }
 
@@ -101,11 +94,10 @@ export function LeadName({ lead, notes }) {
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
   const fullName = `${lead.first_name} ${lead.last_name}`;
+  const look = "block max-w-full truncate text-[14px] font-medium text-[#0C111D]";
 
   if (notes.length === 0) {
-    return (
-      <span className="block truncate text-[14px] font-medium text-[#0C111D]">{fullName}</span>
-    );
+    return <span className={look}>{fullName}</span>;
   }
 
   return (
@@ -113,37 +105,15 @@ export function LeadName({ lead, notes }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="block max-w-full truncate text-left text-[14px] font-medium text-[#0C111D] hover:text-[#3538CD]"
+        className={`${look} text-left hover:text-[#3538CD]`}
       >
         {fullName}
       </button>
 
       {open ? (
-        <ModalShell lead={lead} onClose={close}>
+        <LeadModal lead={lead} title={TITLES.history} onClose={close}>
           <LeadHistoryModal lead={lead} notes={notes} />
-        </ModalShell>
-      ) : null}
-    </>
-  );
-}
-
-// A closed lead takes no more updates, so it gets no button at all.
-export function LeadUpdateButton({ lead, today }) {
-  const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
-
-  if (lead.stage !== "new" && lead.stage !== "follow_up") {
-    return null;
-  }
-
-  return (
-    <>
-      <Button onClick={() => setOpen(true)}>Update</Button>
-
-      {open ? (
-        <ModalShell lead={lead} onClose={close}>
-          <LeadActionModal lead={lead} today={today} onClose={close} />
-        </ModalShell>
+        </LeadModal>
       ) : null}
     </>
   );

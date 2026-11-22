@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/currentUser";
 import { addNote } from "@/lib/addNote";
 import { closeAsEnrolled, closeAsRejected } from "@/lib/closeLead";
+import { assignLead } from "@/lib/assignLead";
 
 // The viewer is read here, on the server, on every write. The form posts a
 // lead id and nothing else that matters, so who may touch that lead is never
@@ -80,4 +81,14 @@ export async function saveLeadStep(previousState, formData) {
   const chosen = readStep(formData.get("step"), formData);
 
   return guard(chosen.write, chosen.values);
+}
+
+// Handing an unowned lead to a sales person. It goes through the same guard
+// as the three steps above, so one database fault reads the same wherever
+// it happens.
+export async function assignLeadToOwner(previousState, formData) {
+  return guard(assignLead, {
+    enquiryId: formData.get("enquiryId"),
+    ownerId: formData.get("ownerId"),
+  });
 }

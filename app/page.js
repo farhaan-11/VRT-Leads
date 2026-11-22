@@ -1,4 +1,4 @@
-import { getCurrentUser, getAllViewers } from "@/lib/currentUser";
+import { getCurrentUser } from "@/lib/currentUser";
 import {
   getDashboardCounts,
   getRevenue,
@@ -8,7 +8,7 @@ import {
   getEnquiryList,
   countEnquiries,
 } from "@/lib/queries/enquiryQueries";
-import { findNextSalesPerson } from "@/lib/queries/assignmentQueries";
+import { getSalesWorkload } from "@/lib/queries/assignmentQueries";
 import { getNotesForLeads } from "@/lib/queries/leadQueries";
 import StatCards from "@/app/components/StatCards";
 import Funnel from "@/app/components/Funnel";
@@ -26,10 +26,9 @@ async function loadPage(user, filters) {
   const revenue = await getRevenue(user);
   const enquiries = await getEnquiryList(user, filters);
   const total = await countEnquiries(user, filters);
-  const viewers = await getAllViewers();
-  const nextOwner = await findNextSalesPerson();
+  const owners = await getSalesWorkload();
 
-  return { counts, revenue, enquiries, total, viewers, nextOwner };
+  return { counts, revenue, enquiries, total, owners };
 }
 
 // Every note for the rows on screen, in one more query. With them already
@@ -57,12 +56,6 @@ async function loadEverything(user, filters) {
   return { ...data, notesByLead };
 }
 
-// Sales people only. The admin never owns an enquiry, so offering her as a
-// filter would be a choice that always answers with nothing.
-function salesPeople(viewers) {
-  return viewers.filter((one) => one.role === "sales");
-}
-
 // The filters and the table travel together. The screen around them is a
 // client component, because only the browser knows that a new set of rows
 // has been asked for and has not arrived yet.
@@ -71,8 +64,8 @@ function LeadsView({ user, data, filters }) {
     <LeadsScreen
       filters={filters}
       isAdmin={user.role === "admin"}
-      owners={salesPeople(data.viewers)}
-      nextOwner={data.nextOwner}
+      owners={data.owners}
+      nextOwner={data.owners[0]}
       total={data.total}
     >
       <LeadsTable
@@ -80,6 +73,8 @@ function LeadsView({ user, data, filters }) {
         notesByLead={data.notesByLead}
         filters={filters}
         total={data.total}
+        owners={data.owners}
+        isAdmin={user.role === "admin"}
       />
     </LeadsScreen>
   );

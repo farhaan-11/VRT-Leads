@@ -46,7 +46,7 @@ function NothingFound() {
   );
 }
 
-function Rows({ enquiries, notesByLead, today }) {
+function Rows({ enquiries, notesByLead, today, owners, isAdmin }) {
   return (
     <table className="w-full table-fixed border-collapse">
       <colgroup>
@@ -62,6 +62,8 @@ function Rows({ enquiries, notesByLead, today }) {
             lead={lead}
             today={today}
             notes={notesByLead.get(lead.id) || []}
+            owners={owners}
+            isAdmin={isAdmin}
           />
         ))}
       </tbody>
@@ -71,7 +73,7 @@ function Rows({ enquiries, notesByLead, today }) {
 
 // The panel owns the leftover height. Its rows scroll only on a screen too
 // short to hold nine of them, so on a laptop nothing moves at all.
-export default function LeadsTable({ enquiries, notesByLead, filters, total }) {
+export default function LeadsTable({ enquiries, notesByLead, filters, total, owners, isAdmin }) {
   const today = todayInNewYork();
 
   return (
@@ -81,7 +83,13 @@ export default function LeadsTable({ enquiries, notesByLead, filters, total }) {
       ) : (
         <>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <Rows enquiries={enquiries} notesByLead={notesByLead} today={today} />
+            <Rows
+              enquiries={enquiries}
+              notesByLead={notesByLead}
+              today={today}
+              owners={owners}
+              isAdmin={isAdmin}
+            />
           </div>
           <Pager filters={filters} total={total} />
         </>

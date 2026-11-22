@@ -12,9 +12,9 @@ function NextStep({ lead }) {
   }
 
   return (
-    <p className="text-sm text-slate-600">
+    <p className="rounded-lg bg-[#F9FAFB] px-3 py-2 text-[13px] text-[#667085]">
       Next follow-up:{" "}
-      <span className="font-medium text-slate-900">
+      <span className="font-medium text-[#0C111D]">
         {formatDay(lead.follow_up_on)}
       </span>
     </p>

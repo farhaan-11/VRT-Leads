@@ -3,23 +3,24 @@
 import { useActionState, useEffect, useState } from "react";
 import { saveLeadStep } from "@/app/actions/leadActions";
 import StepFields from "@/app/components/lead/StepFields";
+import { Button } from "@/app/components/ui";
 
 const EMPTY_STATE = { done: false, error: "", typed: {} };
 
 // Follow-up first, because it is what happens after most calls. The other
 // two end the lead, and ending something should take one deliberate click.
 const STEPS = [
-  { value: "follow_up", label: "Follow-up" },
-  { value: "enrolled", label: "Enrolled" },
-  { value: "rejected", label: "Rejected" },
+  { value: "follow_up", label: "Book a follow-up" },
+  { value: "enrolled", label: "They enrolled" },
+  { value: "rejected", label: "Not interested" },
 ];
 
 function pillStyle(active) {
   const look = active
-    ? "border-slate-900 bg-slate-900 text-white"
-    : "border-slate-300 bg-white text-slate-600 hover:border-slate-400";
+    ? "border-[#3538CD] bg-[#F5F6FF] text-[#3538CD]"
+    : "border-[#E6E8EC] bg-white text-[#475467] hover:bg-[#F9FAFB]";
 
-  return `cursor-pointer rounded-full border px-4 py-1.5 text-sm transition-colors ${look}`;
+  return `cursor-pointer rounded-lg border px-3 py-1.5 text-[13px] font-medium transition ${look}`;
 }
 
 // The radio itself is hidden and the label is the button. The form still
@@ -50,7 +51,7 @@ function Problem({ error }) {
   }
 
   return (
-    <p className="rounded border border-red-300 bg-red-50 p-2 text-sm text-red-700">
+    <p className="rounded-lg border border-[#FDA29B] bg-[#FEF3F2] p-2.5 text-[13px] text-[#B42318]">
       {error}
     </p>
   );
@@ -59,21 +60,11 @@ function Problem({ error }) {
 function Buttons({ saving, onClose }) {
   return (
     <div className="flex justify-end gap-2 pt-1">
-      <button
-        type="button"
-        onClick={onClose}
-        className="rounded border border-slate-300 px-4 py-2 text-sm hover:border-slate-500"
-      >
-        Cancel
-      </button>
+      <Button onClick={onClose}>Cancel</Button>
 
-      <button
-        type="submit"
-        disabled={saving}
-        className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-      >
-        {saving ? "Saving..." : "Save"}
-      </button>
+      <Button type="submit" look="primary" disabled={saving}>
+        {saving ? "Saving..." : "Save update"}
+      </Button>
     </div>
   );
 }

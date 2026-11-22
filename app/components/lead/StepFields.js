@@ -4,12 +4,12 @@
 // is white even on a laptop in dark mode, where an input with no colours of
 // its own reads as empty.
 const BOX_STYLE =
-  "mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500";
+  "mt-1 w-full rounded-lg border border-[#D0D5DD] bg-white px-3 py-2 text-[14px] text-[#0C111D] outline-none focus:border-[#3538CD]";
 
 function Field({ label, optional, children }) {
   return (
     <label className="block text-sm">
-      <span className="text-slate-600">
+      <span className="text-[13px] font-medium text-[#344054]">
         {label}
         {optional ? " (optional)" : " *"}
       </span>

@@ -4,11 +4,11 @@ import { dayInNewYork, formatDay } from "@/lib/dates";
 // is printed, so an evening call does not show tomorrow's date.
 function Note({ note }) {
   return (
-    <li className="border-l-2 border-slate-200 pl-3">
-      <p className="text-xs text-slate-500">
+    <li className="border-l-2 border-[#E6E8EC] pl-3">
+      <p className="text-[12px] text-[#98A2B3]">
         {formatDay(dayInNewYork(note.created_at))} · {note.author}
       </p>
-      <p className="whitespace-pre-line text-sm">{note.body}</p>
+      <p className="whitespace-pre-line text-[13px] text-[#0C111D]">{note.body}</p>
     </li>
   );
 }
@@ -21,9 +21,7 @@ function Note({ note }) {
 export default function LeadNotes({ notes }) {
   if (notes.length === 0) {
     return (
-      <p className="text-sm text-slate-500">
-        No notes yet. The first one goes below.
-      </p>
+      <p className="text-[13px] text-[#667085]">Nothing has been written down yet.</p>
     );
   }
 
