@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# VRT Leads Dashboard
 
-## Getting Started
+One screen that follows a VEGA enquiry from first contact to payment:
+enquiry -> lead -> enrollment.
 
-First, run the development server:
+Built with Next.js, MySQL and raw SQL. `PLAN.md` holds the full
+requirement.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Set up the database
+
+MySQL has to be installed and running. Five steps, in this order.
+
+**1. Put your database details in `.env.local`** at the root of the
+project. This file is gitignored and is never committed.
+
+```
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=vrt_leads
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+All the SQL below runs in MySQL Workbench. Only `npm` commands run in
+PowerShell.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+**2. Create an empty database and switch into it.** Open a query tab in
+Workbench and run all three lines together:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sql
+DROP DATABASE IF EXISTS vrt_leads;
+CREATE DATABASE vrt_leads;
+USE vrt_leads;
+```
 
-## Learn More
+`USE` is the line that matters. Without it Workbench keeps writing into
+whichever database was selected last, and the tables quietly land
+somewhere else.
 
-To learn more about Next.js, take a look at the following resources:
+To make the choice stick across tabs, double-click `vrt_leads` in the
+SCHEMAS sidebar on the left. Its name goes bold when it is the one in use.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**3. Create the four tables, in this order.** `enquiries` points at
+`users`, and `notes` and `enrollments` point at `enquiries`, so a table
+cannot be created before the one it points at. The numbers in the file
+names are that order.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+In Workbench, open each file with File > Open SQL Script, then run it:
 
-## Deploy on Vercel
+1. `db/schema/01_users.sql`
+2. `db/schema/02_enquiries.sql`
+3. `db/schema/03_notes.sql`
+4. `db/schema/04_enrollments.sql`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**4. Load the demo data,** the same four names in the same order:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. `db/seed/01_users.sql`
+2. `db/seed/02_enquiries.sql`
+3. `db/seed/03_notes.sql`
+4. `db/seed/04_enrollments.sql`
+
+**5. Check it loaded.** Run this in Workbench:
+
+```sql
+SELECT
+  (SELECT COUNT(*) FROM users)       AS users,
+  (SELECT COUNT(*) FROM enquiries)   AS enquiries,
+  (SELECT COUNT(*) FROM notes)       AS notes,
+  (SELECT COUNT(*) FROM enrollments) AS enrollments;
+```
+
+It has to read 4, 50, 120 and 12. Anything else means a file did not run.
+
+### The same thing from the terminal
+
+If you would rather not use Workbench, steps 2 to 4 are three PowerShell
+commands:
+
+```powershell
+mysql -u root -p -e "DROP DATABASE IF EXISTS vrt_leads; CREATE DATABASE vrt_leads;"
+```
+
+```powershell
+Get-Content db/schema/01_users.sql, db/schema/02_enquiries.sql, db/schema/03_notes.sql, db/schema/04_enrollments.sql | mysql -u root -p vrt_leads
+```
+
+```powershell
+Get-Content db/seed/01_users.sql, db/seed/02_enquiries.sql, db/seed/03_notes.sql, db/seed/04_enrollments.sql | mysql -u root -p vrt_leads
+```
+
+Here the database name is already in the command, so no `USE` line is
+needed. If PowerShell says `mysql` is not recognized, it is not on your
+PATH. Use the full path instead, for example
+`& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"`.
+
+## Run it
+
+```powershell
+npm run dev
+```
+
+Open http://localhost:3000. The page shows `50 enquiries`.
+
+## Check the production build
+
+```powershell
+npm run build
+```
+
+## What is in the demo data
+
+| Number             | Value                     |
+| ------------------ | ------------------------- |
+| Total enquiries    | 50                        |
+| Not assigned yet   | 8                         |
+| Overdue follow-ups | 5                         |
+| Working leads      | 29                        |
+| Enrolled           | 12                        |
+| Rejected           | 9                         |
+| Revenue            | $141,400                  |
+
+Four people exist: one admin and three sales people. There is no login.
