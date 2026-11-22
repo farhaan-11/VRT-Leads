@@ -10,16 +10,21 @@ requirement.
 
 MySQL has to be installed and running. Five steps, in this order.
 
-**1. Put your database details in `.env.local`** at the root of the
+**1. Put your connection string in `.env.local`** at the root of the
 project. This file is gitignored and is never committed.
 
 ```
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=vrt_leads
+DATABASE_URL=mysql://user:password@host:3306/vrt_leads
 ```
+
+For a MySQL running on this machine that reads:
+
+```
+DATABASE_URL=mysql://root:your_password@localhost:3306/vrt_leads
+```
+
+One line rather than five. A hosted database hands you this string ready to
+copy, so there is nothing to retype and nothing to get wrong.
 
 All the SQL below runs in MySQL Workbench. Only `npm` commands run in
 PowerShell.
