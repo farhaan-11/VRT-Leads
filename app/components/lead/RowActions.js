@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/app/components/ui";
 import LeadActionModal from "@/app/components/lead/LeadActionModal";
 import LeadHistoryModal from "@/app/components/lead/LeadHistoryModal";
 
@@ -102,7 +103,9 @@ export function LeadName({ lead, notes }) {
   const fullName = `${lead.first_name} ${lead.last_name}`;
 
   if (notes.length === 0) {
-    return <span className="font-medium">{fullName}</span>;
+    return (
+      <span className="block truncate text-[14px] font-medium text-[#0C111D]">{fullName}</span>
+    );
   }
 
   return (
@@ -110,7 +113,7 @@ export function LeadName({ lead, notes }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="font-medium underline decoration-slate-300 underline-offset-4 hover:decoration-slate-600"
+        className="block max-w-full truncate text-left text-[14px] font-medium text-[#0C111D] hover:text-[#3538CD]"
       >
         {fullName}
       </button>
@@ -135,13 +138,7 @@ export function LeadUpdateButton({ lead, today }) {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="rounded border border-slate-300 px-3 py-1 text-xs hover:border-slate-500"
-      >
-        Update
-      </button>
+      <Button onClick={() => setOpen(true)}>Update</Button>
 
       {open ? (
         <ModalShell lead={lead} onClose={close}>

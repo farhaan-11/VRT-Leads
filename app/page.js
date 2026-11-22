@@ -7,13 +7,14 @@ import {
   readFilters,
   getEnquiryList,
   getSources,
+  countEnquiries,
 } from "@/lib/queries/enquiryQueries";
 import { findNextSalesPerson } from "@/lib/queries/assignmentQueries";
 import { getNotesForLeads } from "@/lib/queries/leadQueries";
 import StatCards from "@/app/components/StatCards";
 import Funnel from "@/app/components/Funnel";
 import EnquiryFilters from "@/app/components/EnquiryFilters";
-import EnquiryTable from "@/app/components/EnquiryTable";
+import LeadsTable from "@/app/components/LeadsTable";
 
 // Nothing here can be built ahead of time. The database is not reachable
 // during a Vercel build, and these numbers change through the day.
@@ -25,11 +26,12 @@ async function loadPage(user, filters) {
   const counts = await getDashboardCounts(user);
   const revenue = await getRevenue(user);
   const enquiries = await getEnquiryList(user, filters);
+  const total = await countEnquiries(user, filters);
   const sources = await getSources();
   const viewers = await getAllViewers();
   const nextOwner = await findNextSalesPerson();
 
-  return { counts, revenue, enquiries, sources, viewers, nextOwner };
+  return { counts, revenue, enquiries, total, sources, viewers, nextOwner };
 }
 
 // Every note for the rows on screen, in one more query. With them already
@@ -63,26 +65,57 @@ function NextInLine({ owner }) {
   );
 }
 
-// searchParams arrives as a promise in Next 16, so it has to be awaited
-// before anything can be read out of it.
-export default async function HomePage({ searchParams }) {
-  const user = await getCurrentUser();
-  const filters = readFilters(await searchParams);
+// One call for the whole page, so the markup below stays readable and the
+// order the queries run in is written down in one place.
+async function loadEverything(user, filters) {
   const data = await loadPage(user, filters);
   const notesByLead = await loadNotes(data.enquiries);
 
+  return { ...data, notesByLead };
+}
+
+// The list and its filters travel together. Picking a filter without the
+// rows under it, or the rows without the filters, would make no sense.
+function LeadsView({ user, data, filters }) {
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 p-6">
-      <NextInLine owner={data.nextOwner} />
-      <StatCards user={user} counts={data.counts} revenue={data.revenue} />
-      <Funnel user={user} counts={data.counts} />
+    <>
       <EnquiryFilters
         user={user}
         viewers={data.viewers}
         sources={data.sources}
         filters={filters}
       />
-      <EnquiryTable enquiries={data.enquiries} notesByLead={notesByLead} />
+      <LeadsTable
+        enquiries={data.enquiries}
+        notesByLead={data.notesByLead}
+        filters={filters}
+        total={data.total}
+      />
+    </>
+  );
+}
+
+// searchParams arrives as a promise in Next 16, so it has to be awaited
+// before anything can be read out of it.
+//
+// The tab lives in the address bar rather than in the browser's memory, so
+// the screen someone is looking at can be sent to someone else as a link.
+export default async function HomePage({ searchParams }) {
+  const params = await searchParams;
+  const user = await getCurrentUser();
+  const filters = readFilters(params);
+  const data = await loadEverything(user, filters);
+
+  return (
+    <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-4">
+      <NextInLine owner={data.nextOwner} />
+      <StatCards user={user} counts={data.counts} revenue={data.revenue} />
+
+      {params.tab === "insights" ? (
+        <Funnel user={user} counts={data.counts} />
+      ) : (
+        <LeadsView user={user} data={data} filters={filters} />
+      )}
     </main>
   );
 }

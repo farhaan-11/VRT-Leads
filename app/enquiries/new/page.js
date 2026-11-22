@@ -13,7 +13,7 @@ export const metadata = {
 
 export default function NewEnquiryPage() {
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 p-6">
+    <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 overflow-y-auto p-6">
       <div>
         <Link href="/" className="text-sm text-slate-500 hover:text-slate-900">
           Back to dashboard
