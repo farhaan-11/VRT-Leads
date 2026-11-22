@@ -8,6 +8,7 @@ import {
   getEnquiryList,
   getSources,
 } from "@/lib/queries/enquiryQueries";
+import { findNextSalesPerson } from "@/lib/queries/assignmentQueries";
 import StatCards from "@/app/components/StatCards";
 import Funnel from "@/app/components/Funnel";
 import EnquiryFilters from "@/app/components/EnquiryFilters";
@@ -25,8 +26,24 @@ async function loadPage(user, filters) {
   const enquiries = await getEnquiryList(user, filters);
   const sources = await getSources();
   const viewers = await getAllViewers();
+  const nextOwner = await findNextSalesPerson();
 
-  return { counts, revenue, enquiries, sources, viewers };
+  return { counts, revenue, enquiries, sources, viewers, nextOwner };
+}
+
+// A rule people can see is a rule they trust. This line sits here and not on
+// the form, because the form is public and how much work each sales person
+// holds is VRT's own business.
+function NextInLine({ owner }) {
+  if (!owner) {
+    return null;
+  }
+
+  return (
+    <p className="text-sm text-slate-600">
+      Next enquiry goes to {owner.name} ({owner.openLeads} open leads)
+    </p>
+  );
 }
 
 // searchParams arrives as a promise in Next 16, so it has to be awaited
@@ -38,6 +55,7 @@ export default async function HomePage({ searchParams }) {
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 p-6">
+      <NextInLine owner={data.nextOwner} />
       <StatCards user={user} counts={data.counts} revenue={data.revenue} />
       <Funnel user={user} counts={data.counts} />
       <EnquiryFilters

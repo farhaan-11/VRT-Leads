@@ -125,6 +125,59 @@ Three of the numbers are links. Clicking "Overdue 5" lands on exactly those
 five rows. Every filter lives in the URL, so any view can be copied and sent
 to someone else.
 
+## The enquiry form
+
+`/enquiries/new` is a public form. A visitor fills it, and a sales person
+uses the same form for an enquiry that arrived by phone or email. It asks
+how they heard about VRT, so the source table on the dashboard holds what
+people actually said instead of a value we picked for them.
+
+A new enquiry is assigned straight away to the sales person holding the
+fewest open leads. Closed leads are not work any more, so they do not count.
+The dashboard prints who is next in line, because a rule people can see is a
+rule they trust.
+
+## Sending an enquiry from somewhere else
+
+VRT's landing pages are built elsewhere, so they need one address to post to.
+
+```
+POST /api/enquiries
+
+{ "first_name": "John", "last_name": "Smith",
+  "email": "john@acme.com", "company": "Acme Mfg",
+  "job_title": "CEO", "source": "website" }
+
+200  ->  { "ok": true, "id": 51, "assigned_to": "Sneha Kulkarni" }
+400  ->  { "ok": false, "error": "email is required" }
+```
+
+First name, last name and email are needed. Everything else is optional.
+`source` has to be one of `website`, `event`, `referral` or `linkedin`, and
+defaults to `website` when it is left out.
+
+This route holds no rules of its own. It calls the same code the form calls,
+so an enquiry is born in exactly one place and the two paths cannot drift
+apart.
+
+The route is open: anyone who knows the address can post to it. That is fine
+for a demo. Real use needs a shared key in a header, and it was left out
+knowingly.
+
+To try it from PowerShell, escape the quotes inside the body and keep spaces
+out of it. Windows PowerShell strips plain double quotes before a program
+ever sees them, and the route then answers "body must be JSON".
+
+```powershell
+curl.exe -s -X POST http://localhost:3000/api/enquiries -H "Content-Type: application/json" -d '{\"first_name\":\"John\",\"last_name\":\"Smith\",\"email\":\"john@acme.com\",\"source\":\"referral\"}'
+```
+
+A body with spaces in it is easier to send with PowerShell's own command:
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:3000/api/enquiries -Method Post -ContentType 'application/json' -Body '{"first_name":"John","last_name":"Smith","email":"john@acme.com","company":"Acme Mfg"}'
+```
+
 ## Check the production build
 
 ```powershell

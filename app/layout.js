@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { getCurrentUser, getAllViewers } from "@/lib/currentUser";
@@ -68,9 +69,18 @@ function Header({ viewer, viewers }) {
   return (
     <header className="border-b border-slate-200 px-6 py-3">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="font-semibold">VRT Leads</p>
-          <p className="text-xs text-slate-500">Demo mode - no login</p>
+        <div className="flex flex-wrap items-center gap-6">
+          <div>
+            <p className="font-semibold">VRT Leads</p>
+            <p className="text-xs text-slate-500">Demo mode - no login</p>
+          </div>
+
+          <Link
+            href="/enquiries/new"
+            className="rounded border border-slate-300 px-3 py-1 text-sm hover:border-slate-500"
+          >
+            New enquiry
+          </Link>
         </div>
 
         <ViewAsForm viewer={viewer} viewers={viewers} />
