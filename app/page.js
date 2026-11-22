@@ -6,15 +6,14 @@ import {
 import {
   readFilters,
   getEnquiryList,
-  getSources,
   countEnquiries,
 } from "@/lib/queries/enquiryQueries";
 import { findNextSalesPerson } from "@/lib/queries/assignmentQueries";
 import { getNotesForLeads } from "@/lib/queries/leadQueries";
 import StatCards from "@/app/components/StatCards";
 import Funnel from "@/app/components/Funnel";
-import EnquiryFilters from "@/app/components/EnquiryFilters";
 import LeadsTable from "@/app/components/LeadsTable";
+import LeadsScreen from "@/app/components/LeadsScreen";
 
 // Nothing here can be built ahead of time. The database is not reachable
 // during a Vercel build, and these numbers change through the day.
@@ -27,11 +26,10 @@ async function loadPage(user, filters) {
   const revenue = await getRevenue(user);
   const enquiries = await getEnquiryList(user, filters);
   const total = await countEnquiries(user, filters);
-  const sources = await getSources();
   const viewers = await getAllViewers();
   const nextOwner = await findNextSalesPerson();
 
-  return { counts, revenue, enquiries, total, sources, viewers, nextOwner };
+  return { counts, revenue, enquiries, total, viewers, nextOwner };
 }
 
 // Every note for the rows on screen, in one more query. With them already
@@ -50,21 +48,6 @@ async function loadNotes(enquiries) {
   return byLead;
 }
 
-// A rule people can see is a rule they trust. This line sits here and not on
-// the form, because the form is public and how much work each sales person
-// holds is VRT's own business.
-function NextInLine({ owner }) {
-  if (!owner) {
-    return null;
-  }
-
-  return (
-    <p className="text-sm text-slate-600">
-      Next enquiry goes to {owner.name} ({owner.openLeads} open leads)
-    </p>
-  );
-}
-
 // One call for the whole page, so the markup below stays readable and the
 // order the queries run in is written down in one place.
 async function loadEverything(user, filters) {
@@ -74,24 +57,31 @@ async function loadEverything(user, filters) {
   return { ...data, notesByLead };
 }
 
-// The list and its filters travel together. Picking a filter without the
-// rows under it, or the rows without the filters, would make no sense.
+// Sales people only. The admin never owns an enquiry, so offering her as a
+// filter would be a choice that always answers with nothing.
+function salesPeople(viewers) {
+  return viewers.filter((one) => one.role === "sales");
+}
+
+// The filters and the table travel together. The screen around them is a
+// client component, because only the browser knows that a new set of rows
+// has been asked for and has not arrived yet.
 function LeadsView({ user, data, filters }) {
   return (
-    <>
-      <EnquiryFilters
-        user={user}
-        viewers={data.viewers}
-        sources={data.sources}
-        filters={filters}
-      />
+    <LeadsScreen
+      filters={filters}
+      isAdmin={user.role === "admin"}
+      owners={salesPeople(data.viewers)}
+      nextOwner={data.nextOwner}
+      total={data.total}
+    >
       <LeadsTable
         enquiries={data.enquiries}
         notesByLead={data.notesByLead}
         filters={filters}
         total={data.total}
       />
-    </>
+    </LeadsScreen>
   );
 }
 
@@ -108,7 +98,6 @@ export default async function HomePage({ searchParams }) {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-4">
-      <NextInLine owner={data.nextOwner} />
       <StatCards user={user} counts={data.counts} revenue={data.revenue} />
 
       {params.tab === "insights" ? (

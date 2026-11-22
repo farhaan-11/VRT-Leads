@@ -1,30 +1,13 @@
 import Link from "next/link";
-import { PAGE_SIZE } from "@/lib/queries/enquiryQueries";
+import { leadsHref, ownerOf, viewOf, PAGE_SIZE } from "@/lib/leadsUrl";
 
 const STEP = "rounded-lg border border-[#E6E8EC] px-2.5 py-1 text-[13px] text-[#344054]";
 
-function pairsFor(filters, page) {
-  return [
-    ["stage", filters.stage],
-    ["owner", filters.owner],
-    ["source", filters.source],
-    ["overdue", filters.overdue ? "1" : ""],
-    ["page", page > 1 ? String(page) : ""],
-  ];
-}
-
-// The pager keeps whatever filters are already set and only changes the
-// page. Dropping them would quietly move the reader from page 2 of
-// "overdue" to page 2 of everything, with no sign that it happened.
+// The pager keeps whatever is already picked and only changes the page.
+// Dropping it would quietly move the reader from page 2 of "overdue" to
+// page 2 of everything, with no sign that it happened.
 function hrefFor(filters, page) {
-  const params = new URLSearchParams();
-
-  for (const [name, value] of pairsFor(filters, page)) {
-    if (value) {
-      params.set(name, String(value));
-    }
-  }
-  return params.toString() ? `/?${params}` : "/";
+  return leadsHref({ view: viewOf(filters), owner: ownerOf(filters), page });
 }
 
 // A step nobody can take is still shown, in grey. A button that disappears
