@@ -1,3 +1,5 @@
+import { percent } from "@/app/components/format";
+
 function adminSteps(counts) {
   return [
     { label: "Enquiries received", value: counts.received },
@@ -17,88 +19,58 @@ function salesSteps(counts) {
   ];
 }
 
-function stepsFor(user, counts) {
-  if (user.role === "admin") {
-    return adminSteps(counts);
-  }
-  return salesSteps(counts);
-}
-
-// Every bar is read against the first step, so the top bar is always full.
-function toPercent(value, top) {
-  if (top === 0) {
+// The last step carries no loss. Its gap is not people slipping away: they
+// either said no or are still being worked on, and both are honest endings.
+function lostAt(steps, index) {
+  if (index === 0 || index === steps.length - 1) {
     return 0;
   }
-  return Math.round((value / top) * 100);
+  return steps[index - 1].value - steps[index].value;
 }
 
-// The gap to the step above is the whole point of this picture, so it is
-// printed rather than left for the reader to work out.
+// The drop sits inside the bar, in pale red, right where it happened. Written
+// only as "8 lost" off to the side it has to be read; drawn here it is seen.
 //
-// The last step carries no note. Its gap is not loss: those people either
-// said no or are still being worked on, and both are honest endings.
-function lostNote(steps, index) {
-  const isLastStep = index === steps.length - 1;
-
-  if (index === 0 || isLastStep) {
-    return "";
-  }
-
-  const lost = steps[index - 1].value - steps[index].value;
-  if (lost <= 0) {
-    return "";
-  }
-  return `${lost} lost here`;
-}
-
-// Plain CSS. Only the width changes from row to row, which is not enough
-// work to bring a chart library into the build.
-function Bar({ percent }) {
+// Dark plus pale together reach the step above, so each bar also shows the
+// line it failed to hold.
+function Bar({ kept, lost }) {
   return (
-    <span className="h-3 flex-1 rounded bg-slate-100">
-      <span
-        className="block h-3 rounded bg-slate-800"
-        style={{ width: `${percent}%` }}
-      />
+    <span className="flex h-3 flex-1 overflow-hidden rounded-full bg-[#F2F4F7]">
+      <span className="h-3 bg-[#3538CD]" style={{ width: `${kept}%` }} />
+      <span className="h-3 bg-[#FECDCA]" style={{ width: `${lost}%` }} />
     </span>
   );
 }
 
-function FunnelRow({ label, value, percent, lost }) {
+function Row({ step, top, lost }) {
   return (
-    <div className="flex items-center gap-3 text-sm">
-      <span className="w-44 shrink-0 text-slate-600">{label}</span>
-      <span className="w-10 shrink-0 text-right font-semibold">{value}</span>
-      <Bar percent={percent} />
-      <span className="w-12 shrink-0 text-right text-slate-500">
-        {percent}%
+    <li className="flex items-center gap-3">
+      <span className="w-40 shrink-0 text-[13px] text-[#475467]">{step.label}</span>
+      <span className="w-8 shrink-0 text-right text-[15px] font-semibold tabular-nums text-[#0C111D]">
+        {step.value}
       </span>
-      <span className="w-28 shrink-0 text-xs text-red-600">{lost}</span>
-    </div>
+
+      <Bar kept={percent(step.value, top)} lost={percent(lost, top)} />
+
+      <span className="w-10 shrink-0 text-right text-[13px] tabular-nums text-[#667085]">
+        {percent(step.value, top)}%
+      </span>
+      <span className="w-14 shrink-0 text-right text-[12px] font-medium text-[#D92D20]">
+        {lost > 0 ? `-${lost}` : ""}
+      </span>
+    </li>
   );
 }
 
-function FunnelRows({ steps }) {
+export default function Funnel({ user, counts }) {
+  const steps = user.role === "admin" ? adminSteps(counts) : salesSteps(counts);
   const top = steps[0].value;
 
-  return steps.map((step, index) => (
-    <FunnelRow
-      key={step.label}
-      label={step.label}
-      value={step.value}
-      percent={toPercent(step.value, top)}
-      lost={lostNote(steps, index)}
-    />
-  ));
-}
-
-export default function Funnel({ user, counts }) {
-  const steps = stepsFor(user, counts);
-
   return (
-    <section className="space-y-2 rounded border border-slate-200 p-4">
-      <h2 className="text-sm font-semibold">Where people drop out</h2>
-      <FunnelRows steps={steps} />
-    </section>
+    <ul className="space-y-4">
+      {steps.map((step, index) => (
+        <Row key={step.label} step={step} top={top} lost={lostAt(steps, index)} />
+      ))}
+    </ul>
   );
 }

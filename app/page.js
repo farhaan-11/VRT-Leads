@@ -10,8 +10,8 @@ import {
 } from "@/lib/queries/enquiryQueries";
 import { getSalesWorkload } from "@/lib/queries/assignmentQueries";
 import { getNotesForLeads } from "@/lib/queries/leadQueries";
-import StatCards from "@/app/components/StatCards";
-import Funnel from "@/app/components/Funnel";
+import StatStrip from "@/app/components/StatStrip";
+import Insights from "@/app/components/Insights";
 import LeadsTable from "@/app/components/LeadsTable";
 import LeadsScreen from "@/app/components/LeadsScreen";
 
@@ -93,12 +93,13 @@ export default async function HomePage({ searchParams }) {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-4">
-      <StatCards user={user} counts={data.counts} revenue={data.revenue} />
-
       {params.tab === "insights" ? (
-        <Funnel user={user} counts={data.counts} />
+        <Insights user={user} counts={data.counts} revenue={data.revenue} />
       ) : (
-        <LeadsView user={user} data={data} filters={filters} />
+        <>
+          <StatStrip user={user} counts={data.counts} revenue={data.revenue} />
+          <LeadsView user={user} data={data} filters={filters} />
+        </>
       )}
     </main>
   );
