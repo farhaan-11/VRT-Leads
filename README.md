@@ -104,7 +104,26 @@ PATH. Use the full path instead, for example
 npm run dev
 ```
 
-Open http://localhost:3000. The page shows `50 enquiries`.
+Open http://localhost:3000.
+
+## What the screen shows
+
+One page, read from the top down.
+
+**Six numbers.** Total enquiries, not assigned yet, overdue follow-ups,
+working leads, enrolled with its conversion share, and revenue. The two in
+red are the ones that mean work is being lost.
+
+**A funnel.** How many people survive each step, and how many drop out
+between them. Plain CSS bars, no chart library.
+
+**The enquiry list.** Every enquiry with its owner, stage, next follow-up
+and age. Overdue rows sort to the top, then the ones nobody owns, then
+newest first. A new enquiry is safe; a forgotten one is not.
+
+Three of the numbers are links. Clicking "Overdue 5" lands on exactly those
+five rows. Every filter lives in the URL, so any view can be copied and sent
+to someone else.
 
 ## Check the production build
 
@@ -124,4 +143,8 @@ npm run build
 | Rejected           | 9                         |
 | Revenue            | $141,400                  |
 
-Four people exist: one admin and three sales people. There is no login.
+There is no login. Four people exist in the demo: one admin and three sales
+people. The "View as" dropdown in the header switches between them, and the
+screen changes with it. A sales person sees only their own enquiries, and
+the "Not assigned" card disappears for them, because an enquiry nobody owns
+is not theirs to chase.
