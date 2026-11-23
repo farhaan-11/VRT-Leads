@@ -108,39 +108,87 @@ Open http://localhost:3000.
 
 ## What the screen shows
 
-One page, read from the top down.
+Two tabs sit in the dark bar at the top: **Leads** and **Insights**. Either
+one fits the window on its own. The page never scrolls; rows that do not fit
+live on the next page.
 
-**Six numbers.** Total enquiries, not assigned yet, overdue follow-ups,
-working leads, enrolled with its conversion share, and revenue. The two in
-red are the ones that mean work is being lost.
+### Leads
 
-**A funnel.** How many people survive each step, and how many drop out
-between them. Plain CSS bars, no chart library.
+**Six numbers across the top.** Total enquiries, not assigned, overdue
+follow-ups, working leads, enrolled with its conversion share, and revenue.
+The two in red are the ones that mean work is being lost. Most of them are
+links - clicking "Overdue 5" lands on exactly those five rows.
 
-**The enquiry list.** Every enquiry with its owner, stage, next follow-up
-and age. Overdue rows sort to the top, then the ones nobody owns, then
-newest first. A new enquiry is safe; a forgotten one is not.
+**One row of filters.** Seven choices, one at a time: All, Not assigned,
+Overdue, New, Follow-up, Enrolled, Not interested. Picking one changes the
+rows at once, with grey placeholder rows in between so the wait is visible.
+Beside them sits a single dropdown for the owner, which only the admin sees.
 
-Three of the numbers are links. Clicking "Overdue 5" lands on exactly those
-five rows. Every filter lives in the URL, so any view can be copied and sent
-to someone else.
+Everything a filter picks lives in the URL, so any view can be copied and
+sent to someone else, and the back button does what it should.
+
+**The list.** Nine rows a page, with Previous and Next underneath. Each row
+carries the lead's name and company, where they came from, their owner, the
+stage, what happens next, and how long they have been waiting.
+
+"Next step" always says something. A booked follow-up shows its date and how
+late it is; an enrolment shows the money; a lead nobody has called yet says
+so in plain words.
+
+### Insights
+
+Four panels, and no chart library behind any of them. The ring is drawn by
+hand in SVG and the bars are plain CSS.
+
+**How long people are waiting.** Every open lead by age, in four bands from
+green to red. Nothing else on the dashboard answers this, and it is the
+question VRT started with: where do enquiries get lost?
+
+**Who is holding what.** Each sales person with their open leads, overdue
+follow-ups, enrolments, conversion share and revenue, busiest first. The
+admin alone sees it - one sales person has no business reading another's
+numbers.
+
+**Where people drop out.** The funnel. The drop between two steps is drawn
+into the bar in pale red rather than only written beside it.
+
+**Which channel actually pays.** The length of a bar is how many enquiries a
+channel brought; the green part is how many of them signed. A long bar with
+a short green tip is a channel that brings crowds and sells nothing.
 
 ## Working a lead
 
-Everything happens from the row itself, and nothing waits on the server.
+Everything happens from the row itself. Each row carries one button, and
+which one depends on where that lead actually is.
 
-**The Update button** at the end of every open row opens one small box. It
-asks one question first - what happened on this call? - as three choices:
+| The row | Its button |
+| ----------------------------- | ------------------- |
+| Nobody owns it yet | Assign |
+| New | Log first call |
+| Follow-up, already overdue | Follow up now (red) |
+| Follow-up, still on time | Log call |
+| Enrolled or Not interested | View |
+
+One button, not three. A row offering choices makes the reader stop and
+pick; a row with one obvious next move gets done.
+
+**Assign** lists the sales people with how many open leads each is already
+holding, fewest first. The write only lands if the lead still has no owner,
+so two admins looking at the same backlog cannot both hand out the same one.
+It writes a note too, so the lead never changes hands silently.
+
+**Log first call**, **Log call** and **Follow up now** all open the same box.
+It asks one question - what happened on this call? - as three choices:
 
 | Choice | What it asks for |
-| ------------- | ------------------------------------------- |
-| Follow-up | What was said, and the next follow-up date |
-| Enrolled | Cohort, start date, amount, and a note if you want one |
-| Rejected | Why they said no |
+| ------------------ | ------------------------------------------- |
+| Book a follow-up | What was said, and the next follow-up date |
+| They enrolled | Cohort, start date, amount, and a note if you want one |
+| Not interested | Why they said no |
 
-Follow-up is already chosen, because that is what happens after most calls.
-Picking another one swaps the fields underneath. One Save button, and the box
-closes itself once the write lands.
+Book a follow-up is already chosen, because that is what happens after most
+calls. Picking another one swaps the fields underneath. One Save button, and
+the box closes itself once the write lands.
 
 All three write a note, so the history carries the whole story including the
 last word. A follow-up date can never be in the past. A rejection needs a
@@ -153,11 +201,11 @@ row is repeated there.
 
 A name is only clickable once the lead has at least one note. A lead nobody
 has spoken to has no history to show. A closed lead keeps its history but
-loses its Update button - nothing is left to do on it, and a second
-enrollment would count the same money twice. Closing a lead also clears its
-follow-up date, so it stops showing up in the overdue count.
+takes no more updates - a second enrollment would count the same money
+twice. Closing a lead also clears its follow-up date, so it stops showing up
+in the overdue count.
 
-Escape, the x, or a click outside closes either box.
+Escape, the x, or a click outside closes any of these boxes.
 
 ## The enquiry form
 
