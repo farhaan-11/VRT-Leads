@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { StageBadge } from "@/app/components/ui";
+import { Avatar, StageBadge } from "@/app/components/ui";
 
 // Escape, the cross and a click outside all close it. Three ways out,
 // because a box with one small cross traps a reader who missed it.
@@ -18,22 +18,25 @@ function useEscapeKey(onClose) {
   }, [onClose]);
 }
 
-// The name, the stage and one line saying what this box is for. Everything
-// else about the lead is in the row behind it, and saying it twice only
-// makes the box longer.
+// The avatar, the name, the stage and one line saying what this box is for.
+// Everything else about the lead is in the row behind it, and saying it twice
+// only makes the box longer.
 function Head({ lead, title, onClose }) {
+  const fullName = `${lead.first_name} ${lead.last_name}`;
+
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-[#F2F4F7] px-5 py-4">
-      <div>
-        <div className="flex items-center gap-2">
-          <p className="text-[16px] font-semibold text-[#0C111D]">
-            {lead.first_name} {lead.last_name}
+    <div className="flex items-start justify-between gap-4 border-b border-[#F2F4F7] px-6 py-5">
+      <div className="flex items-start gap-3">
+        <Avatar name={fullName} />
+        <div>
+          <div className="flex items-center gap-2">
+            <p className="text-[18px] font-semibold text-[#0C111D]">{fullName}</p>
+            <StageBadge stage={lead.stage} />
+          </div>
+          <p className="mt-0.5 text-[13px] text-[#667085]">
+            {lead.company || lead.email} - {title}
           </p>
-          <StageBadge stage={lead.stage} />
         </div>
-        <p className="mt-0.5 text-[13px] text-[#667085]">
-          {lead.company || lead.email} - {title}
-        </p>
       </div>
 
       <button
@@ -60,12 +63,12 @@ export default function LeadModal({ lead, title, onClose, children }) {
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-[#0C111D]/50"
+        className="absolute inset-0 cursor-default bg-[#0C111D]/60 backdrop-blur-sm"
       />
 
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white text-[#0C111D] shadow-2xl">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white text-[#0C111D] shadow-2xl">
         <Head lead={lead} title={title} onClose={onClose} />
-        <div className="px-5 py-4">{children}</div>
+        <div className="px-6 py-5">{children}</div>
       </div>
     </div>
   );

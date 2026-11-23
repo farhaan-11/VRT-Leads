@@ -22,12 +22,14 @@ function daysLate(lead, today) {
 }
 
 // An unowned lead is the backlog this screen exists to show, so it is said
-// in words and in amber rather than left as an empty cell.
+// in words and in amber rather than left as an empty cell. The dot keeps the
+// pill matching the stage badges elsewhere on the row.
 function OwnerCell({ owner }) {
   if (!owner) {
     return (
       <td className={CELL}>
-        <span className="rounded-full bg-[#FFFAEB] px-2.5 py-1 text-xs font-medium text-[#B54708]">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFFAEB] px-2.5 py-1 text-xs font-medium text-[#B54708]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#F79009]" />
           Nobody yet
         </span>
       </td>
@@ -79,11 +81,24 @@ function NextStepCell({ lead, today }) {
   );
 }
 
+// A faint tint on the whole row, so the rows that matter are seen without the
+// eye having to find a single red cell. White everywhere else keeps the strip
+// calm.
+function rowTone(late, stage) {
+  if (late) {
+    return "bg-[#FFFBFA] hover:bg-[#FEF3F2]";
+  }
+  if (stage === "enrolled") {
+    return "bg-[#F6FEF9] hover:bg-[#ECFDF3]";
+  }
+  return "hover:bg-[#F6F7F9]";
+}
+
 export default function LeadRow({ lead, today, notes, owners, isAdmin }) {
   const late = isLate(lead, today);
 
   return (
-    <tr className="h-[52px] border-t border-[#F2F4F7] transition hover:bg-[#FAFAFB]">
+    <tr className={`h-[52px] border-t border-[#F2F4F7] transition ${rowTone(late, lead.stage)}`}>
       <td className={CELL}>
         <LeadName lead={lead} notes={notes} />
         <span className="block truncate text-[12px] text-[#667085]">{lead.company}</span>

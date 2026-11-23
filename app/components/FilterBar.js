@@ -7,12 +7,12 @@ import { viewsFor } from "@/lib/leadsUrl";
 // "one of seven".
 function ViewPill({ view, chosen, onPick }) {
   const look = chosen
-    ? "bg-[#0C111D] text-white"
-    : "bg-white text-[#475467] hover:bg-[#F9FAFB]";
+    ? "bg-[#0C111D] text-white border-[#0C111D] shadow-sm"
+    : "bg-white text-[#475467] border-[#E6E8EC] hover:bg-[#F9FAFB]";
 
   return (
     <label
-      className={`cursor-pointer rounded-lg border border-[#E6E8EC] px-3 py-1.5 text-[13px] font-medium transition ${look}`}
+      className={`cursor-pointer rounded-lg border px-3 py-1.5 text-[13px] font-medium transition ${look}`}
     >
       <input
         type="radio"
@@ -54,7 +54,8 @@ function NextInLine({ owner }) {
   }
 
   return (
-    <span className="rounded-lg bg-[#F5F6FF] px-2.5 py-1.5 text-[12px] text-[#3538CD]">
+    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#C7D7FE] bg-[#F5F6FF] px-2.5 py-1.5 text-[12px] font-medium text-[#3538CD]">
+      <span className="h-1.5 w-1.5 rounded-full bg-[#3538CD]" />
       Next enquiry goes to {owner.name}
     </span>
   );

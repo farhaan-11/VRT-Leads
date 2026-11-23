@@ -12,7 +12,7 @@ const WIDTHS = ["25%", "9%", "15%", "12%", "17%", "9%", "13%"];
 
 function TableHead() {
   return (
-    <thead className="bg-[#FCFCFD]">
+    <thead className="bg-[#F9FAFB]">
       <tr className="h-10 border-b border-[#E6E8EC]">
         {HEADINGS.map((heading, index) => (
           <th

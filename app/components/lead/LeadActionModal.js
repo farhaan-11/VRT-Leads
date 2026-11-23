@@ -21,27 +21,30 @@ function pillStyle(active) {
     ? "border-[#3538CD] bg-[#F5F6FF] text-[#3538CD]"
     : "border-[#E6E8EC] bg-white text-[#475467] hover:bg-[#F9FAFB]";
 
-  return `cursor-pointer rounded-lg border px-3 py-1.5 text-[13px] font-medium transition ${look}`;
+  return `cursor-pointer rounded-lg border px-3.5 py-2 text-[14px] font-medium transition ${look}`;
 }
 
 // The radio itself is hidden and the label is the button. The form still
 // posts "step", and the keyboard still moves between the three.
 function StepPills({ step, onPick }) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {STEPS.map((one) => (
-        <label key={one.value} className={pillStyle(step === one.value)}>
-          <input
-            type="radio"
-            name="step"
-            value={one.value}
-            checked={step === one.value}
-            onChange={() => onPick(one.value)}
-            className="sr-only"
-          />
-          {one.label}
-        </label>
-      ))}
+    <div>
+      <p className="mb-2 text-[13px] font-semibold text-[#344054]">What happened on the call?</p>
+      <div className="flex flex-wrap gap-2">
+        {STEPS.map((one) => (
+          <label key={one.value} className={pillStyle(step === one.value)}>
+            <input
+              type="radio"
+              name="step"
+              value={one.value}
+              checked={step === one.value}
+              onChange={() => onPick(one.value)}
+              className="sr-only"
+            />
+            {one.label}
+          </label>
+        ))}
+      </div>
     </div>
   );
 }

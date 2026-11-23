@@ -41,7 +41,7 @@ function actionFor(lead, isAdmin, late) {
   if (lead.stage === "new" || lead.stage === "follow_up") {
     return openAction(lead, late);
   }
-  return { label: "View", look: "ghost", kind: "history" };
+  return { label: "View", look: "quiet", kind: "history" };
 }
 
 // One box, three insides. Which one opens is decided by the button that was

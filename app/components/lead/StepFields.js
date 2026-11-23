@@ -4,14 +4,20 @@
 // is white even on a laptop in dark mode, where an input with no colours of
 // its own reads as empty.
 const BOX_STYLE =
-  "mt-1 w-full rounded-lg border border-[#D0D5DD] bg-white px-3 py-2 text-[14px] text-[#0C111D] outline-none focus:border-[#3538CD]";
+  "mt-1.5 w-full rounded-lg border border-[#D0D5DD] bg-white px-3.5 py-2.5 text-[14px] text-[#0C111D] outline-none transition focus:border-[#3538CD] focus:ring-2 focus:ring-[#3538CD]/20";
 
+// A red asterisk reads as "fill this in" without a sentence. An optional
+// field says so in words, because a missing marker is easy to miss.
 function Field({ label, optional, children }) {
   return (
-    <label className="block text-sm">
-      <span className="text-[13px] font-medium text-[#344054]">
+    <label className="block">
+      <span className="text-[14px] font-semibold text-[#344054]">
         {label}
-        {optional ? " (optional)" : " *"}
+        {optional ? (
+          <span className="ml-1 text-[12px] font-normal text-[#98A2B3]">(optional)</span>
+        ) : (
+          <span className="ml-1 text-[#D92D20]">*</span>
+        )}
       </span>
       {children}
     </label>

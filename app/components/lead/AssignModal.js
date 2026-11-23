@@ -11,10 +11,12 @@ const EMPTY_STATE = { done: false, error: "", typed: {} };
 // already buried is the mistake this box exists to prevent, and a number
 // says it faster than any rule could.
 function OwnerChoice({ person, chosen, onPick }) {
-  const look = chosen ? "border-[#3538CD] bg-[#F5F6FF]" : "border-[#E6E8EC] hover:bg-[#F9FAFB]";
+  const look = chosen
+    ? "border-[#3538CD] bg-[#F5F6FF] ring-2 ring-[#3538CD]/15"
+    : "border-[#E6E8EC] hover:bg-[#F9FAFB]";
 
   return (
-    <label className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 ${look}`}>
+    <label className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-3 transition ${look}`}>
       <input
         type="radio"
         name="ownerId"
@@ -25,7 +27,9 @@ function OwnerChoice({ person, chosen, onPick }) {
       />
       <Avatar name={person.name} />
       <span className="flex-1 text-[14px] font-medium text-[#0C111D]">{person.name}</span>
-      <span className="text-[12px] text-[#667085]">{person.openLeads} open</span>
+      <span className="rounded-full bg-[#F2F4F7] px-2.5 py-0.5 text-[12px] font-medium text-[#475467]">
+        {person.openLeads} open
+      </span>
     </label>
   );
 }
