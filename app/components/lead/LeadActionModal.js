@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { saveLeadStep } from "@/app/actions/leadActions";
 import StepFields from "@/app/components/lead/StepFields";
 import { Button } from "@/app/components/ui";
@@ -71,15 +72,22 @@ function Buttons({ saving, onClose }) {
 
 // The modal closes itself once the write lands. Until then the Save button
 // is disabled and says so, which is the only wait in this screen.
+//
+// router.refresh is the one that actually pulls the new rows in. The server
+// action already calls revalidatePath, which drops the server cache, but the
+// client router keeps its own copy until it is told to let go. Without this
+// line the row under the modal reads as it did a second ago.
 export default function LeadActionModal({ lead, today, onClose }) {
+  const router = useRouter();
   const [step, setStep] = useState("follow_up");
   const [state, submit, saving] = useActionState(saveLeadStep, EMPTY_STATE);
 
   useEffect(() => {
     if (state.done) {
+      router.refresh();
       onClose();
     }
-  }, [state.done, onClose]);
+  }, [state.done, onClose, router]);
 
   return (
     <form action={submit} className="space-y-4">
