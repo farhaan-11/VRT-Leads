@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { getCurrentUser, getAllViewers } from "@/lib/currentUser";
 import { Avatar } from "@/app/components/ui";
 import Tabs from "@/app/components/Tabs";
 import ViewAsSelect from "@/app/components/ViewAsSelect";
+import NavToggleLink from "@/app/components/NavToggleLink";
 
 function Brand() {
   return (
@@ -37,12 +37,9 @@ export default async function TopBar() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Link
-          href="/enquiries/new"
-          className="rounded-lg bg-[#3538CD] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[#2D31A6]"
-        >
-          New enquiry
-        </Link>
+        <Suspense fallback={null}>
+          <NavToggleLink />
+        </Suspense>
 
         <div className="flex items-center gap-2">
           <Avatar name={viewer.name} />
