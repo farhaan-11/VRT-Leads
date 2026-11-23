@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { NavLink } from "@/app/components/Nav";
 
 const TABS = [
   { id: "leads", label: "Leads", href: "/" },
@@ -23,7 +23,7 @@ export default function Tabs() {
   return (
     <div className="flex rounded-lg bg-[#1D2432] p-0.5">
       {TABS.map((tab) => (
-        <Link
+        <NavLink
           key={tab.id}
           href={tab.href}
           className={`rounded-md px-3.5 py-1.5 text-[13px] font-medium transition ${
@@ -31,7 +31,7 @@ export default function Tabs() {
           }`}
         >
           {tab.label}
-        </Link>
+        </NavLink>
       ))}
     </div>
   );

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { leadsHref, ownerOf, viewOf, PAGE_SIZE } from "@/lib/leadsUrl";
+import { NavLink } from "@/app/components/Nav";
 
 const STEP = "rounded-lg border border-[#E6E8EC] px-2.5 py-1 text-[13px] text-[#344054]";
 
@@ -18,9 +18,9 @@ function Step({ filters, page, label, enabled }) {
   }
 
   return (
-    <Link href={hrefFor(filters, page)} className={`${STEP} hover:bg-[#F9FAFB]`}>
+    <NavLink href={hrefFor(filters, page)} className={`${STEP} hover:bg-[#F9FAFB]`}>
       {label}
-    </Link>
+    </NavLink>
   );
 }
 
