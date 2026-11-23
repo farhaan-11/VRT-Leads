@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { leadsHref } from "@/lib/leadsUrl";
 import { conversionPercent } from "@/lib/queries/dashboardQueries";
 import { money } from "@/app/components/format";
 import { SURFACE, LABEL } from "@/app/components/ui";
+import { NavLink } from "@/app/components/Nav";
 
 const TILE = `${SURFACE} flex flex-col gap-1 px-3.5 py-3 text-left`;
 
@@ -34,9 +34,9 @@ function Tile({ card }) {
   }
 
   return (
-    <Link href={leadsHref({ view: card.view })} className={`${TILE} hover:border-[#3538CD]`}>
+    <NavLink href={leadsHref({ view: card.view })} className={`${TILE} hover:border-[#3538CD]`}>
       <Body card={card} />
-    </Link>
+    </NavLink>
   );
 }
 

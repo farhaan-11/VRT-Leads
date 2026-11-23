@@ -15,11 +15,15 @@ const COOKIE_OPTIONS = {
 
 // The header dropdown posts here. I store the id only; getCurrentUser checks
 // it against the database, so a bad id costs nothing but the admin view.
-export async function switchViewer(formData) {
+//
+// The first argument is the previous state. useActionState in the dropdown
+// hands it in so it can read back a pending flag while the cookie is being
+// written, and the top progress bar lights up for that wait too.
+export async function switchViewer(previousState, formData) {
   const id = Number(formData.get("viewerId"));
 
   if (!Number.isInteger(id) || id < 1) {
-    return;
+    return null;
   }
 
   const store = await cookies();
@@ -28,4 +32,5 @@ export async function switchViewer(formData) {
   // Without this the cookie changes but the header and the numbers already on
   // screen stay as they were.
   revalidatePath("/", "layout");
+  return null;
 }

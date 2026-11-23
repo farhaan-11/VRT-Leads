@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { assignLeadToOwner } from "@/app/actions/leadActions";
 import { Avatar, Button } from "@/app/components/ui";
 
@@ -43,15 +44,22 @@ function Problem({ error }) {
 
 // The box closes itself once the write lands. Until then the button is
 // disabled and says so, which is the only wait on this screen.
+//
+// router.refresh is the one that actually pulls the new row in. The server
+// action already calls revalidatePath, which drops the server cache, but the
+// client router keeps its own copy until it is told to let go. Without this
+// line the row under the modal still reads as unowned.
 export default function AssignModal({ lead, owners, onClose }) {
+  const router = useRouter();
   const [picked, setPicked] = useState(0);
   const [state, submit, saving] = useActionState(assignLeadToOwner, EMPTY_STATE);
 
   useEffect(() => {
     if (state.done) {
+      router.refresh();
       onClose();
     }
-  }, [state.done, onClose]);
+  }, [state.done, onClose, router]);
 
   return (
     <form action={submit} className="space-y-4">

@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { todayInNewYork } from "@/lib/dates";
 import { SURFACE, LABEL } from "@/app/components/ui";
 import LeadRow from "@/app/components/LeadRow";
 import Pager from "@/app/components/Pager";
+import { NavLink } from "@/app/components/Nav";
 
 const HEADINGS = ["Lead", "Source", "Owner", "Stage", "Next step", "Waiting", ""];
 
@@ -39,9 +39,9 @@ function NothingFound() {
       <p className="text-[13px] text-[#667085]">
         Nothing matches what you picked. Everything else is still here.
       </p>
-      <Link href="/" className="mt-2 text-[13px] font-medium text-[#3538CD] hover:underline">
+      <NavLink href="/" className="mt-2 text-[13px] font-medium text-[#3538CD] hover:underline">
         Show all leads
-      </Link>
+      </NavLink>
     </div>
   );
 }

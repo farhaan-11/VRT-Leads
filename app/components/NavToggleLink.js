@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NavLink } from "@/app/components/Nav";
 
 // One button that swaps label and target based on which page the visitor is
 // on. On the events page they need a way back to the dashboard; on the
@@ -12,11 +12,11 @@ export default function NavToggleLink() {
   const onEvents = pathname === "/events";
 
   return (
-    <Link
+    <NavLink
       href={onEvents ? "/" : "/events"}
       className="rounded-lg bg-[#3538CD] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[#2D31A6]"
     >
       {onEvents ? "Dashboard" : "Events"}
-    </Link>
+    </NavLink>
   );
 }
