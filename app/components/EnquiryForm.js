@@ -34,14 +34,19 @@ const MAX_LENGTH = {
 // This page is also opened on laptops set to dark mode, where an input with
 // no colours of its own reads as empty.
 const BOX_STYLE =
-  "mt-1 w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900";
+  "mt-1 w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 transition focus:border-[#3538CD] focus:outline-none focus:ring-2 focus:ring-[#3538CD]/15";
 
-function FieldLabel({ label, required, children }) {
+// I show "*" in red for a field the visitor must fill, and "(optional)" in
+// grey for one they may leave blank. A field that is required but pre-filled
+// (like source) takes neither, because a marker on something already answered
+// only reads as noise.
+function FieldLabel({ label, required, optional, children }) {
   return (
     <label className="block text-sm">
-      <span className="text-slate-600">
+      <span className="font-medium text-slate-700">
         {label}
-        {required ? " *" : ""}
+        {required ? <span className="text-red-600"> *</span> : null}
+        {optional ? <span className="font-normal text-slate-400"> (optional)</span> : null}
       </span>
       {children}
     </label>
@@ -50,9 +55,9 @@ function FieldLabel({ label, required, children }) {
 
 // defaultValue brings back what was typed. maxLength matches the column, so
 // a long paste is stopped here instead of coming back as an error.
-function TextField({ name, label, typed, type, required }) {
+function TextField({ name, label, typed, type, required, optional }) {
   return (
-    <FieldLabel label={label} required={required}>
+    <FieldLabel label={label} required={required} optional={optional}>
       <input
         name={name}
         type={type || "text"}
@@ -65,9 +70,9 @@ function TextField({ name, label, typed, type, required }) {
   );
 }
 
-function ChoiceField({ name, label, options, typed, blankLabel }) {
+function ChoiceField({ name, label, options, typed, blankLabel, optional }) {
   return (
-    <FieldLabel label={label}>
+    <FieldLabel label={label} optional={optional}>
       <select name={name} defaultValue={typed[name] || ""} className={BOX_STYLE}>
         {blankLabel ? <option value="">{blankLabel}</option> : null}
         {options.map((option) => (
@@ -82,7 +87,7 @@ function ChoiceField({ name, label, options, typed, blankLabel }) {
 
 function MessageField({ typed }) {
   return (
-    <FieldLabel label="What can we help with?">
+    <FieldLabel label="What can we help with?" optional>
       <textarea
         name="message"
         rows={4}
@@ -91,6 +96,16 @@ function MessageField({ typed }) {
         className={BOX_STYLE}
       />
     </FieldLabel>
+  );
+}
+
+// One line above the fields, so a visitor knows what the markers mean before
+// they meet the first one.
+function Legend() {
+  return (
+    <p className="text-xs text-slate-500">
+      Fields marked <span className="text-red-600">*</span> are required. Others are optional.
+    </p>
   );
 }
 
@@ -123,6 +138,7 @@ function ThankYou() {
 function Fields({ typed }) {
   return (
     <>
+      <Legend />
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField name="first_name" label="First name" typed={typed} required />
         <TextField name="last_name" label="Last name" typed={typed} required />
@@ -131,17 +147,18 @@ function Fields({ typed }) {
       <TextField name="email" label="Email" type="email" typed={typed} required />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField name="phone" label="Phone" type="tel" typed={typed} />
-        <TextField name="job_title" label="Job title" typed={typed} />
-        <TextField name="company" label="Company" typed={typed} />
+        <TextField name="phone" label="Phone" type="tel" typed={typed} optional />
+        <TextField name="job_title" label="Job title" typed={typed} optional />
+        <TextField name="company" label="Company" typed={typed} optional />
         <ChoiceField
           name="company_size"
           label="Company size"
           options={COMPANY_SIZES.map((size) => ({ value: size, label: size }))}
           typed={typed}
           blankLabel="Prefer not to say"
+          optional
         />
-        <TextField name="state" label="State (2 letters, like CT)" typed={typed} />
+        <TextField name="state" label="State (2 letters, like CT)" typed={typed} optional />
         <ChoiceField
           name="source"
           label="How did you hear about us?"
@@ -166,14 +183,14 @@ export default function EnquiryForm() {
   }
 
   return (
-    <form action={submit} className="space-y-4">
+    <form action={submit} className="space-y-5">
       <Problem error={state.error} />
       <Fields typed={state.typed} />
 
       <button
         type="submit"
         disabled={sending}
-        className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+        className="rounded-lg bg-[#3538CD] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2D31A6] disabled:opacity-60"
       >
         {sending ? "Sending..." : "Send enquiry"}
       </button>

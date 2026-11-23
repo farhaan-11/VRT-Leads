@@ -207,12 +207,16 @@ in the overdue count.
 
 Escape, the x, or a click outside closes any of these boxes.
 
-## The enquiry form
+## The events page and the enquiry form
 
-`/enquiries/new` is a public form. A visitor fills it, and a sales person
-uses the same form for an enquiry that arrived by phone or email. It asks
-how they heard about VRT, so the source table on the dashboard holds what
-people actually said instead of a value we picked for them.
+`/events` is the public page a visitor lands on. It shows four upcoming
+sessions at the top and holds the enquiry form at the bottom. A visitor
+fills it, and a sales person uses the same form for an enquiry that arrived
+by phone or email. It asks how they heard about VRT, so the source table on
+the dashboard holds what people actually said instead of a value we picked.
+
+The older `/enquiries/new` URL still works - it redirects to `/events`, so
+any old bookmark lands on the same form.
 
 A new enquiry is assigned straight away to the sales person holding the
 fewest open leads. Closed leads are not work any more, so they do not count.

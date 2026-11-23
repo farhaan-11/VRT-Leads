@@ -86,3 +86,33 @@ export function Avatar({ name }) {
     </span>
   );
 }
+
+// Three tones, used by the Events page. Slate reads as neutral, green as
+// positive (free, open), amber as attention (filling fast, limited seats).
+// Kept here with the other small pieces so a page cannot invent its own tone.
+const TAG_TONES = {
+  slate: "bg-[#F2F4F7] text-[#344054]",
+  green: "bg-[#ECFDF3] text-[#067647]",
+  amber: "bg-[#FFFAEB] text-[#B54708]",
+};
+
+export function Tag({ label, tone }) {
+  return (
+    <span
+      className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${TAG_TONES[tone]}`}
+    >
+      {label}
+    </span>
+  );
+}
+
+// A calendar-style badge for an event card. The gradient gives a little depth
+// so the badge does not read as a flat blue square among the white cards.
+export function DateBadge({ month, day }) {
+  return (
+    <div className="flex h-16 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-gradient-to-br from-[#3538CD] to-[#1E1F7A] text-white shadow-sm">
+      <span className="text-[10px] font-semibold tracking-wider">{month}</span>
+      <span className="text-xl font-bold leading-none">{day}</span>
+    </div>
+  );
+}
